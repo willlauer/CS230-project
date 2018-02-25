@@ -35,7 +35,7 @@ def create_placeholders(n_H0, n_W0, n_C0, n_y):
     return X, Y
 
 
-# In[174]:
+# In[230]:
 
 
 # https://www.tensorflow.org/versions/r0.12/api_docs/python/image/working_with_bounding_boxes
@@ -56,13 +56,13 @@ def iou(box1, box2):
     yi1 = tf.maximum(box1[:, :, :, 1], box2[:, :, :, 1])
     xi2 = tf.minimum(box1[:, :, :, 2], box2[:, :, :, 2])
     yi2 = tf.minimum(box1[:, :, :, 3], box2[:, :, :, 3])
-    inter_area = max(xi2 - xi1, 0) * max(yi2 - yi1, 0)
+    inter_area = tf.maximum(tf.subtract(xi2, xi1), 0) * tf.maximum(tf.subtract(yi2, yi1), 0)
  
-    box1_area = (box1[:, :, :, 2] - box1[:, :, :, 0]) * (box1[:, :, :, 3] - box1[:, :, :, 1])
-    box2_area = (box2[:, :, :, 2] - box2[:, :, :, 0]) * (box2[:, :, :, 3] - box2[:, :, :, 1])
-    union_area = box1_area + box2_area - inter_area
+    box1_area = tf.subtract(box1[:, :, :, 2], box1[:, :, :, 0]) * tf.subtract(box1[:, :, :, 3], box1[:, :, :, 1])
+    box2_area = tf.subtract(box2[:, :, :, 2], box2[:, :, :, 0]) * tf.subtract(box2[:, :, :, 3], box2[:, :, :, 1])
+    union_area = tf.subtract(tf.add(box1_area, box2_area), inter_area)
  
-    i_over_u = inter_area / union_area
+    i_over_u = tf.divide(inter_area, union_area)
       
     return i_over_u
 
@@ -102,8 +102,10 @@ def detectionCost(Z_fin, Y):
     # confidence loss
     box_confidence = Z_fin[:, :, :, 0]
     i_over_u = iou(Z_fin, Y)
-    confidence = tf.layers.flatten(box_confidence * i_over_u)
-    y_hat_confidence = tf.layers.flatten(Y_confidence * i_over_u)
+    confidence = box_confidence * i_over_u
+    # 7, 7, 2
+    y_hat_confidence = Y_confidence * i_over_u
+    print(confidence.shape, y_hat_confidence.shape)
     
     obj_confidence = tf.boolean_mask((confidence - y_hat_confidence)**2, mask)
     noobj_confidence = lambdNoobj  * tf.boolean_mask((confidence - y_hat_confidence)**2, noobj_mask)
@@ -182,7 +184,7 @@ def random_mini_batches(X, Y, mini_batch_size = 64, seed = 0):
  
 
 
-# In[175]:
+# In[231]:
 
 
 def loadPretrainData():
@@ -259,7 +261,7 @@ def loadPretrainData():
    
 
 
-# In[176]:
+# In[232]:
 
 
 
@@ -402,7 +404,7 @@ def forward_propagation(X, params, mode):
     return Z_fin
 
 
-# In[177]:
+# In[233]:
 
 
 
@@ -546,7 +548,7 @@ def load_dataset(bbx_gt_filename):
     return X_train, Y_train, X_test, Y_test     
 
 
-# In[178]:
+# In[234]:
 
 
 def initializeParameters():
@@ -585,7 +587,7 @@ def initializeParameters():
     return parameters
 
 
-# In[179]:
+# In[235]:
 
 
 
@@ -675,7 +677,7 @@ def yolo(X_pretrain, Y_pretrain, X_pretest, Y_pretest,
                 print ("Cost after epoch %i: %f" % (epoch, c))
 
 
-# In[180]:
+# In[ ]:
 
 
 ##################################
@@ -685,7 +687,7 @@ X_pretrain, Y_pretrain, X_pretest, Y_pretest = loadPretrainData()
 X_train, Y_train, X_test, Y_test = load_dataset('wider_face_train_bbx_gt.txt')
 
 
-# In[181]:
+# In[ ]:
 
 
 Y_train = np.reshape(Y_train, [Y_train.shape[0], Y_train.shape[1] * Y_train.shape[2] * Y_train.shape[3]]) # See if this helps
