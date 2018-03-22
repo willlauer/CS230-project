@@ -35,8 +35,10 @@ def main():
             # copy directory to test folders
             from_dir_full = full_path + '/' + d
             from_dir_cropped = cropped_path + '/' + d
+
             to_dir_full = full_test + '/' + d
             to_dir_cropped = cropped_test + '/' + d
+
             copy_tree(from_dir_full, to_dir_full)
             copy_tree(from_dir_cropped, to_dir_cropped)
             
@@ -79,6 +81,17 @@ def main():
                 d2 = random.choice(os.listdir(full_path))
                 while (d == d2):
                         d2 = random.choice(os.listdir(full_path))
+
+                # copy directory to test folders
+                from_dir_full = full_path + '/' + d2
+                from_dir_cropped = cropped_path + '/' + d2
+
+                to_dir_full = full_test + '/' + d2
+                to_dir_cropped = cropped_test + '/' + d2
+
+                copy_tree(from_dir_full, to_dir_full)
+                copy_tree(from_dir_cropped, to_dir_cropped)
+ 
 
                 # get random image from full and cropped d2 directories
                 num_images_2_full = len([f for f in os.listdir(full_path + '/' + d2) if not f[0] == '.'])
