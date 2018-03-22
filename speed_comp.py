@@ -33,11 +33,12 @@ def main():
             d = random.choice(os.listdir(full_path))
 
             # copy directory to test folders
-            from_dir = full_path + '/' + d
+            from_dir_full = full_path + '/' + d
+            from_dir_cropped = cropped_path + '/' + d
             to_dir_full = full_test + '/' + d
             to_dir_cropped = cropped_test + '/' + d
-            copy_tree(from_dir, to_dir_full)
-            copy_tree(from_dir, to_dir_cropped)
+            copy_tree(from_dir_full, to_dir_full)
+            copy_tree(from_dir_cropped, to_dir_cropped)
             
             # get number of images in that full directory
             num_images_full = len([f for f in os.listdir(full_path + '/' + d) if not f[0] == '.'])
